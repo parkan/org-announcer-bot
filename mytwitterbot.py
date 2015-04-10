@@ -89,7 +89,7 @@ class MyTwitterBot(TwitterBot):
         self.log('ETag: {}'.format(self.state['ETag']))
         events = json.loads(res.read())
         tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent' ]
-        for text in tweets
+        for text in tweets:
             self.post_tweet(text[:75] + (text[75:] and '..'))  
             time.sleep(uniform(3,7))
         
