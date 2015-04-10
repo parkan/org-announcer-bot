@@ -82,12 +82,12 @@ class MyTwitterBot(TwitterBot):
         Set tweet frequency in seconds with TWEET_INTERVAL in config.py.
         """
         # text = function_that_returns_a_string_goes_here()
-        url = "GET /users/:username/events/orgs/:org"
+        url = "GET /users/parkan/events/orgs/NYUAD-Hackathon"
         urllib2.urlopen(url)
         self.state['ETag'] = re.search('"(\w+)', [ header for header in res.info().headers if header.startswith('ETag') ][0]).group(1)
-        tweets = ["{} just pushed to {}".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent' ]
+        tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent' ]
         for text in tweets
-            self.post_tweet(text)  
+            self.post_tweet(text[:75] + (text[75:] and '..'))  
             time.sleep(uniform(3,7))
         
 
