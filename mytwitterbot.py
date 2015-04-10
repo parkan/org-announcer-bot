@@ -90,7 +90,7 @@ class MyTwitterBot(TwitterBot):
         url = "GET /users/parkan/events/orgs/NYUAD-Hackathon"
         request = urllib2.Request(url, headers={"If-None-Match" : self.state['ETag']})
         opener = urllib2.build_opener(NotModifiedHandler())
-        res = opener.urlopen(request)
+        res = opener.open(request)
         self.state['ETag'] = res.headers.get('ETag')
         self.log('ETag: {}'.format(self.state['ETag']))
         if not (hasattr(url_handle, 'code') and url_handle.code == 304):
