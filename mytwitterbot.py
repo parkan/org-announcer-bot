@@ -87,7 +87,7 @@ class MyTwitterBot(TwitterBot):
 
         Set tweet frequency in seconds with TWEET_INTERVAL in config.py.
         """
-        url = "GET /users/parkan/events/orgs/NYUAD-Hackathon"
+        url = "https://api.github.com/orgs/NYUAD-Hackathon/events"
         request = urllib2.Request(url, headers={"If-None-Match" : self.state['ETag']})
         opener = urllib2.build_opener(NotModifiedHandler())
         res = opener.open(request)
