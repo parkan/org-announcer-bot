@@ -60,7 +60,7 @@ class MyTwitterBot(TwitterBot):
         # self.state dictionary. These will only be initialized if the bot is
         # not loading a previous saved state.
 
-        # self.state['butt_counter'] = 0
+        self.state['ETag'] = ''
 
         # You can also add custom functions that run at regular intervals
         # using self.register_custom_handler(function, interval).
@@ -83,8 +83,11 @@ class MyTwitterBot(TwitterBot):
         """
         # text = function_that_returns_a_string_goes_here()
         url = "GET /users/parkan/events/orgs/NYUAD-Hackathon"
-        urllib2.urlopen(url)
+        request = urllib2.Request(url, headers={"If-None-Match" : self.state['ETag']})
+        res = urllib2.urlopen(request)
         self.state['ETag'] = re.search('"(\w+)', [ header for header in res.info().headers if header.startswith('ETag') ][0]).group(1)
+        self.log('ETag: {}'.format(self.state['ETag']))
+        events = json.loads(res.read())
         tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent' ]
         for text in tweets
             self.post_tweet(text[:75] + (text[75:] and '..'))  
