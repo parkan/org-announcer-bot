@@ -95,10 +95,11 @@ class MyTwitterBot(TwitterBot):
 
         if not (hasattr(res, 'code') and res.code == 304):
             events = json.loads(res.read())
-            tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent']
-            for text in tweets:
-                self.post_tweet(text[:75] + (text[75:] and '..'))  
-                time.sleep(uniform(3,7))
+            tweets = [(event['actor']['login'], ['payload']['commits'][0]['message']) for event in events if event['type'] == 'PushEvent']
+            for (user, msg) in tweets:
+                "{} just pushed: {} #NYUADhacks".format(user, (msg[:123] + '...') if len(msg) > 124 else msg)
+                self.post_tweet()  
+                time.sleep(uniform(3, 7))
         
 
     def on_mention(self, tweet, prefix):
