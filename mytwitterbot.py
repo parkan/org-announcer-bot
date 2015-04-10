@@ -5,7 +5,13 @@ from twitterbot import TwitterBot
 import urllib2
 import re
 import time
-from random import randrange, uniform
+from random import uniform
+
+class NotModifiedHandler(urllib2.BaseHandler):
+    def http_error_304(self, req, fp, code, message, headers):
+        addinfourl = urllib2.addinfourl(fp, headers, req.get_full_url())
+        addinfourl.code = code
+        return addinfourl
 
 class MyTwitterBot(TwitterBot):
     def bot_init(self):
@@ -81,17 +87,18 @@ class MyTwitterBot(TwitterBot):
 
         Set tweet frequency in seconds with TWEET_INTERVAL in config.py.
         """
-        # text = function_that_returns_a_string_goes_here()
         url = "GET /users/parkan/events/orgs/NYUAD-Hackathon"
         request = urllib2.Request(url, headers={"If-None-Match" : self.state['ETag']})
-        res = urllib2.urlopen(request)
-        self.state['ETag'] = re.search('"(\w+)', [ header for header in res.info().headers if header.startswith('ETag') ][0]).group(1)
+        opener = urllib2.build_opener(NotModifiedHandler())
+        res = opener.urlopen(request)
+        self.state['ETag'] = res.headers.get('ETag')
         self.log('ETag: {}'.format(self.state['ETag']))
-        events = json.loads(res.read())
-        tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent' ]
-        for text in tweets:
-            self.post_tweet(text[:75] + (text[75:] and '..'))  
-            time.sleep(uniform(3,7))
+        if not (hasattr(url_handle, 'code') and url_handle.code == 304):
+            events = json.loads(res.read())
+            tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent' ]
+            for text in tweets:
+                self.post_tweet(text[:75] + (text[75:] and '..'))  
+                time.sleep(uniform(3,7))
         
 
     def on_mention(self, tweet, prefix):
