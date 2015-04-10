@@ -3,7 +3,6 @@
 
 from twitterbot import TwitterBot
 import urllib2
-import re
 import time
 from random import uniform
 
@@ -93,9 +92,10 @@ class MyTwitterBot(TwitterBot):
         res = opener.open(request)
         self.state['ETag'] = res.headers.get('ETag')
         self.log('ETag: {}'.format(self.state['ETag']))
-        if not (hasattr(url_handle, 'code') and url_handle.code == 304):
+
+        if not (hasattr(res, 'code') and res.code == 304):
             events = json.loads(res.read())
-            tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent' ]
+            tweets = ["{} just pushed to {} #NYUADhacks".format(event['actor']['login'], event['repo']['name']) for event in events if event['type'] == 'PushEvent']
             for text in tweets:
                 self.post_tweet(text[:75] + (text[75:] and '..'))  
                 time.sleep(uniform(3,7))
